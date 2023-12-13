@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Timesheet</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .timesheet-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+        .flex {
+            display: flex;
+        }
+        .inline {
+            display: inline-block;
+        }
+        span.date {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 4px;
+            background: #ccc;
+            opacity: 0.7;
+        }
+        input[type='button'].control {
+            font-family: monospace;
+            width: 60px;
+        }
+        #week::before {
+            margin-right: 10px;
+            padding: 5px;
+            border-radius: 20px 0 0 20px;
+            border: 1px solid #ccc;
+            content: var(--week-starts-at);
+        }
+        #week::after {
+            margin-left: 10px;
+            padding: 5px;
+            border-radius: 0 20px 20px 0;
+            border: 1px solid #ccc;
+            content: var(--week-ends-at);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="timesheet-container">
+        <h2>Weekly Timesheet </h2>
+        
+        <form id="timesheet" action="https://docs.google.com/forms/d/e/1FAIpQLScxvGxLVPFZemNo631h-vZTMLS1C6NvJ62eDYqf77YC3O92Sw/formResponse" method="POST">
+            <div class="flex">
+                <input id="prev" class="control" type="button" value="<" class="inline"/>
+                <input id="week" type="week" name="entry.309659028" class="inline"/>
+                <input id="next" class="control" type="button" value=">" class="inline"/>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Hours</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Monday <span class="date" name="date_0"></span></td>
+                        <td><input type="number" name="entry.1295278384" min="0" max="18" step="1" placeholder="0"/></td>
+                        <td><textarea name="mondayText"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>Tuesday <span class="date" name="date_1"></span></td>
+                        <td><input type="number" name="entry.1796463713" min="0" max="18" step="1" placeholder="0"/></td>
+                        <td><textarea name="tuesdayText"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>Wednesday <span class="date" name="date_2"></span></td>
+                        <td><input type="number" name="entry.1973361497" min="0" max="18" step="1" placeholder="0"/></td>
+                        <td><textarea name="wednesdayText"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>Thursday <span class="date" name="date_3"></span></td>
+                        <td><input type="number" name="entry.1165097738" min="0" max="18" step="1" placeholder="0"/></td>
+                        <td><textarea name="thursdayText"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>Friday <span class="date" name="date_4"></span></td>
+                        <td><input type="number" name="entry.655036112" min="0" max="18" step="1" placeholder="0"/></td>
+                        <td><textarea name="fridayText"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>Highlight</td>
+                        <td colspan=2><textarea name="entry.2005586780" style="width:260px;height:60px"></textarea></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button type="submit">Submit Timesheet</button>
+        </form>
+    </div>
+    <script src="https://momentjs.com/downloads/moment.js"></script>
+    <script>
+        var weekSelector = document.getElementById('week');
+        weekSelector.addEventListener('change', e => updateWeek(e.target.valueAsDate));
+        var updateWeek = weekStartDate => {
+            var week = moment(weekStartDate).week();
+            var weekStr = week < 10 ? `0${week}` : `${week}`;
+            weekSelector.value = `${weekStartDate.getFullYear()}-W${weekStr}`;    
+            [0, 1, 2, 3, 4, 5, 6].forEach(i => {
+                var date = moment(weekStartDate).add(i, 'days');
+                var formattedDate = date.format('D-MMM-YYYY');
+                var query = `span[name='date_${i}']`;
+                document.querySelectorAll(query).forEach(el => el.innerHTML = formattedDate);
+                if(i == 0) {
+                    document.documentElement.style.setProperty("--week-starts-at", '"'+ formattedDate + '"');
+                }
+                if(i == 6) {
+                    document.documentElement.style.setProperty("--week-ends-at", '"'+ formattedDate + '"');
+                }
+            }); 
+        }; 
+       
+        updateWeek(moment().weekday(1).toDate());
+        document.getElementById('prev').addEventListener('click', e => updateWeek(moment(weekSelector.valueAsDate).subtract(7, 'days').toDate()));
+        document.getElementById('next').addEventListener('click', e => updateWeek(moment(weekSelector.valueAsDate).add(7, 'days').toDate()));
+    </script>
+
+</body>
+</html>
